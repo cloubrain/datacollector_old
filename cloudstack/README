@@ -1,0 +1,4 @@
+1. Obain api-key and secret key from cloudstack
+2. open file collect.py, replace the api-key and secret-key in this file.
+3. "sudo start collectdata" (start service)
+4. "sudo stop collectdata" (stop the service)
