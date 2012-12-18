@@ -1,62 +1,14 @@
-CloudStack Python Client
-========================
+HOW-TO-RUN
 
-Python client library for the CloudStack User API v3.0.0. For older versions,
-see the [tags](https://github.com/jasonhancock/cloudstack-python-client/tags).
-
-Examples
---------
-
-List all virtual machines
-
-```python
-#!/usr/bin/python
-
-import CloudStack
-
-api = 'http://example.com:8080/client/api'
-apikey = 'API KEY'
-secret = 'API SECRET'
-
-cloudstack = CloudStack.Client(api, apikey, secret)
-
-vms = cloudstack.listVirtualMachines()
-
-for vm in vms:
-    print "%s %s %s" % (vm['id'], vm['name'], vm['state'])
-```
-
-
-   
-Asynchronous tasks
-
-```python
-#!/usr/bin/python
-
-import CloudStack
-
-api = 'http://example.com:8080/client/api'
-apikey = 'API KEY'
-secret = 'API SECRET'
-
-cloudstack = CloudStack.Client(api, apikey, secret)
-
-job = cloudstack.deployVirtualMachine({
-    'serviceofferingid': '2',
-    'templateid':        '214',
-    'zoneid':            '2'
-})
-
-print "VM being deployed. Job id = %s" % job['jobid']
-
-print "All Jobs:"
-jobs = cloudstack.listAsyncJobs({})
-for job in jobs:
-    print  "%s : %s, status = %s" % (job['jobid'], job['cmd'], job['jobstatus'])
-
-```
-
-TODO:
------
-There is a lot to do to clean up the code and make it worthy of production. This
-was just a rough first pass.
+1. copy file collect.py in main folder to your local file
+2. obtain API Key and Secret Key from cloudstack, fill out the top of file collect.py
+      a. API: URL to cloudstack
+      b. API Key
+      c. Secrete Key
+      d. path to store data collected from cloudstack
+      e. interval (in seconds) for collecting data
+3. python collect.py --install=
+4. run the service of collecting data:
+      sudo start collect
+5. stop the serivce of collecting data:
+      sudo stop collect
