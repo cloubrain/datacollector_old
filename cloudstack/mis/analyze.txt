@@ -1,0 +1,5 @@
+1 virtual machine = 1230 bytes
+assume 1000 virtual machines on cloudstack
+run 24 hours (24 * 60 * 60 seconds)
+
+
