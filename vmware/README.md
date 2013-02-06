@@ -1,4 +1,5 @@
-Data collector for VMWare 
+
+Data collector for VMWare
 
 There are two ways for us to collect the data from your VMWare: online and offline. The online version will send your data via Internet to your server. And the offline version will store your data locally as mongoDB database. 
 We are going to collect your data via VCenter in VMWare. 
@@ -24,8 +25,9 @@ Collect your data from vCenter:
   java -jar collect.jar <your.config.file>
   
   
-Will create image files of visualization for your data:
+Create image files of visualization for your data:
   java -jar collect.jar visualization
 
+TODO: just keep everything simple and will update with more details. 
 
 
