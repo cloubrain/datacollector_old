@@ -20,11 +20,11 @@ upload option
   
 3. Run
 
-Collect your data from vCenter
+Collect your data from vCenter:
   java -jar collect.jar <your.config.file>
   
   
-Will create image files of visualization for your data
+Will create image files of visualization for your data:
   java -jar collect.jar visualization
 
 
