@@ -17,7 +17,8 @@ public class Rbmq {
 		factory.setPassword    ("guest");
 		factory.setVirtualHost ("/");
 		//factory.setHost        ("ec2-23-20-50-212.compute-1.amazonaws.com");
-		factory.setHost        ("ec2-50-17-115-221.compute-1.amazonaws.com");
+		//factory.setHost        ("ec2-50-17-115-221.compute-1.amazonaws.com");
+		factory.setHost        ("ec2-54-224-154-194.compute-1.amazonaws.com");
 	    
 	    Connection connection = factory.newConnection();
 	    Channel channel = connection.createChannel();
@@ -39,7 +40,9 @@ public class Rbmq {
 		factory.setUsername    ("guest");
 		factory.setPassword    ("guest");
 		factory.setVirtualHost ("/");
-		factory.setHost        ("ec2-23-20-50-212.compute-1.amazonaws.com");
+		//factory.setHost        ("ec2-23-20-50-212.compute-1.amazonaws.com");
+		//factory.setHost        ("ec2-50-17-115-221.compute-1.amazonaws.com");
+		factory.setHost        ("ec2-54-224-154-194.compute-1.amazonaws.com");
 	    
 	    Connection connection = factory.newConnection();
 	    Channel channel = connection.createChannel();
