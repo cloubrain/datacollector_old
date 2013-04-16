@@ -47,6 +47,8 @@ public class StatsHelper {
 	{
 		PropUtils props = PropUtils.getInstance();
 		String upload = (String) props.getVal("upload");
+		String host = (String) props.getVal("host");
+		
 		boolean online = true;
 		if (upload == null || upload.toLowerCase().equals("false")) {
 			online = false;
@@ -65,7 +67,7 @@ public class StatsHelper {
 		jsonO.put("COUNTERS", jsonA);
 		System.out.println(jsonO.toString());
 		if (online) {
-			Rbmq.postMessageToQueue(jsonO);
+			Rbmq.postMessageToQueue(jsonO, host);
 		} else {
 			// TODO: send this data to local database or store to file
 			LocalDatabase.store(jsonO);
@@ -87,7 +89,7 @@ public class StatsHelper {
 		jsonO.put("COUNTERS", jsonA);
 		System.out.println(jsonO.toString());
 		if (online) {
-			Rbmq.postMessageToQueue(jsonO);
+			Rbmq.postMessageToQueue(jsonO, host);
 		} else {
 			// TODO: store to local database or store to file
 			LocalDatabase.store(jsonO);

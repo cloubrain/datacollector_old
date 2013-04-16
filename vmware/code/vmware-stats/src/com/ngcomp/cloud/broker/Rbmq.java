@@ -10,7 +10,7 @@ import com.rabbitmq.client.ConnectionFactory;
 
 public class Rbmq {
 
-	public static void postMessageToQueue(JSONObject jsonO) throws IOException
+	public static void postMessageToQueue(JSONObject jsonO, String host) throws IOException
 	{
 		ConnectionFactory factory = new ConnectionFactory();
 		factory.setUsername    ("guest");
@@ -18,7 +18,7 @@ public class Rbmq {
 		factory.setVirtualHost ("/");
 		//factory.setHost        ("ec2-23-20-50-212.compute-1.amazonaws.com");
 		//factory.setHost        ("ec2-50-17-115-221.compute-1.amazonaws.com");
-		factory.setHost        ("ec2-54-224-154-194.compute-1.amazonaws.com");
+		factory.setHost        (host);
 	    
 	    Connection connection = factory.newConnection();
 	    Channel channel = connection.createChannel();
