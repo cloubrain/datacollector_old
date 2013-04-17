@@ -16,24 +16,37 @@ import datetime
 import os
 import sys
 import json
+import time
 from pymongo import MongoClient
+import matplotlib.pyplot as plt
 
 class VMWare: 
   def __init__(self, name, uuid, info=None):
     self.name = name
     self.uuid = uuid
     self.info = info
+    self.resources = {}
 
 
   def addData(self, info):
-    pass
+    for key in info['stats']:
+      if not key in self.resources:
+        self.resources[key] = []
+      self.resources[key].append(int(info['stats'][key]))
+
+  def importImage(self):
+    for key in self.resources:
+      print key, self.resources[key]
+      plt.plot(self.resources[key])
+      plt.savefig("./images/" +  self.name + "_" + key + ".png")
+      plt.clf()
 
   def storeToDB(self):
     print self.name
     print self.uuid
     print self.info
     now = datetime.datetime.now()
-    document = {'name': self.name, 'uuid': self.uuid, 'time': str(now), 'stats': self.info}
+    document = {"name": self.name, "uuid": self.uuid, "time": str(now), "stats": self.info}
     print document
     
     # connecto to mongodb 
@@ -54,7 +67,7 @@ class VMWare:
         os.mkdir("./" + directory + "/")
 
       with open("./" + directory + "/" + "data.txt", "a") as myfile:
-        myfile.write(str(document) + "\n")
+        myfile.write(json.dumps(document, separators=(',',':')) + "\n")
   
   def constructListOfResources(self):
     if 'time' in self.info:
@@ -159,6 +172,7 @@ class Visualiztion:
         self.collection = None
 
   def importImages(self):
+    tableVMs = {}
     if self.collection != None:
       cursor = self.collection.find()
       while True:
@@ -167,24 +181,45 @@ class Visualiztion:
           break
 
         name = obj['name']
-        uuid = obj['id']
+        uuid = obj['uuid']
         #TODO: create vms and add info to this vm
+        if not uuid in tableVMs: 
+          tableVMs[uuid] = VMWare(name, uuid)
+
+        tableVMs[uuid].addData(obj)
+
+      for vm in tableVMs: 
+        tableVMs[vm].importImage()
 
     else: 
       for line in self.fileData.readlines():
-        dd = json.loads(line)
+        # TODO: replace single quote to double quote
+        obj = json.loads(line)
         # load them and store to vms
+        name = obj['name']
+        uuid = obj['uuid']
+        #TODO: create vms and add info to this vm
+        if not uuid in tableVMs: 
+          tableVMs[uuid] = VMWare(name, uuid)
+
+        tableVMs[uuid].addData(obj)
+
+      for vm in tableVMs: 
+        tableVMs[vm].importImage()
 
 
 # start the whole program here
 if __name__ == '__main__':
-  visual = Visualiztion()
-  visual.importImages()
+  if len(sys.argv) == 2 and sys.argv[1] == 'visualization':
+    visual = Visualiztion()
+    visual.importImages()
 
-  sys.exit()
+    sys.exit()
   dc = DataCollector(user, password, url, tenantId, usehttps)
-  dc.collect()
-  for infoVM in dc.listVM():
-    vm = VMWare(infoVM['name'], infoVM['id'], dc.getInfoVM(infoVM))
-    vm.storeToDB()
+  while True: 
+    dc.collect()
+    for infoVM in dc.listVM():
+      vm = VMWare(infoVM['name'], infoVM['id'], dc.getInfoVM(infoVM))
+      vm.storeToDB()
+    time.sleep(10)
 
