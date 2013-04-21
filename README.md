@@ -1,6 +1,9 @@
 dcdata
 ======
 
+Just type:
+ python cbmongo.py
+
 Scripts to pull cloud data from mongoDB server.
 
 rabbitmongo.py
