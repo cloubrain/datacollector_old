@@ -1,0 +1,26 @@
+Data collector for VMWare
+CloubrAIn, Inc.
+
+The data collector collects the data via VCenter in VMWare. It automatically sends the data to our server.
+
+Java 1.6 or above must be installed and $JAVA_HOME defined. Edit "vCenter.config" file as below
+
+vcenter_url=https://vcenter-host/sdk
+vcenter_uid=admin_username
+vcenter_pwd=admin_password
+upload=true
+host=ec_2.compute.amazonaws.com
+perf_items=cpu.usagemhz.average,mem.usage.average
+name=myDC (or any other desired name which will also be used alongwith your data for storing)
+
+Send email to: data@cloubrain.com
+to receive your Amazon server that will collect your data.
+We have a ready made instance with mongoDB setup.
+Set host=... in "vCenter.config" to the server we provide.
+
+To start the collector, run
+$JAVA_HOME/bin/java -jar stats.jar vCenter.config
+If successful, you will see collected stats on the console.
+
+To create image files of visualization of your data, run
+$JAVA_HOME/bin/java -jar stats.jar visualization
