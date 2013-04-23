@@ -18,7 +18,9 @@
 
 package com.ngcomp.cloud.broker.util;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,6 +47,12 @@ public class StatsHelper {
 	@SuppressWarnings("unchecked")
 	public static void pushStatsCounterToQueue() throws IOException
 	{
+		URL whatismyip = new URL("http://checkip.amazonaws.com/");
+		BufferedReader in = new BufferedReader(new InputStreamReader(
+		                whatismyip.openStream()));
+
+		String ip = in.readLine(); //you get the IP as a String
+
 		PropUtils props = PropUtils.getInstance();
 		String upload = (String) props.getVal("upload");
 		String host = (String) props.getVal("host");
@@ -67,7 +75,7 @@ public class StatsHelper {
 		jsonO.put("COUNTERS", jsonA);
 		System.out.println(jsonO.toString());
 		if (online) {
-			Rbmq.postMessageToQueue(jsonO, host);
+			Rbmq.postMessageToQueue(jsonO, host, ip);
 		} else {
 			// TODO: send this data to local database or store to file
 			LocalDatabase.store(jsonO);
@@ -89,7 +97,7 @@ public class StatsHelper {
 		jsonO.put("COUNTERS", jsonA);
 		System.out.println(jsonO.toString());
 		if (online) {
-			Rbmq.postMessageToQueue(jsonO, host);
+			Rbmq.postMessageToQueue(jsonO, host, ip);
 		} else {
 			// TODO: store to local database or store to file
 			LocalDatabase.store(jsonO);
@@ -151,7 +159,7 @@ public class StatsHelper {
 	}
 
   public static String getVmName(String name) throws IOException
-  {	  
+  {	   
 	  if(name.contains("(") && name.contains(")"))
 	  {
 		  String[] tokens = name.split("\\(");

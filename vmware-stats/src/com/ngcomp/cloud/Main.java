@@ -33,7 +33,7 @@ public class Main
 	public static void main(String...strings) throws IOException, InterruptedException
 	{
 		
-	/*	if (strings.length < 1)
+		if (strings.length < 1)
 		{
 			System.err.println("Usage: java -jar stats.jar <config.props>");
 			System.exit(1);
@@ -42,30 +42,25 @@ public class Main
 		if (strings[0].equals("visualization")) {
 			Visualization.importVisualization();
 			System.exit(1);
-		}*/
+		}
 		
+		URL whatismyip = new URL("http://checkip.amazonaws.com/");
+		BufferedReader in = new BufferedReader(new InputStreamReader(
+		                whatismyip.openStream()));
+		String ip = in.readLine(); //you get the IP as a String
 		
 		final String configFilePath = "vcenter.config";
 		PropUtils.init(configFilePath);
 		
-//		StatsHelper.initializePerfCounters();
-		
-	//	Thread.sleep(100);
-		URL whatismyip = new URL("http://checkip.amazonaws.com/");
-		BufferedReader in = new BufferedReader(new InputStreamReader(
-		                whatismyip.openStream()));
-
-		String ip = in.readLine(); //you get the IP as a String
-		System.out.print(ip);
-		System.out.print("exiting");
-		System.exit(1);
+		StatsHelper.initializePerfCounters();	
+		Thread.sleep(10000);
 		StatsHelper.pushStatsCounterToQueue();
 		
 		while(true)
 		{
 			try
 			{
-				RealtimePerfMonitor realtimePerfMonitor = new RealtimePerfMonitor();
+				RealtimePerfMonitor realtimePerfMonitor = new RealtimePerfMonitor(ip);
 				Thread realtimePerfMonitorThread        = new Thread(realtimePerfMonitor);
 				realtimePerfMonitorThread.start();
 			}

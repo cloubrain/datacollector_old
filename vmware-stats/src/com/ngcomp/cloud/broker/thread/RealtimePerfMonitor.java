@@ -48,10 +48,16 @@ public class RealtimePerfMonitor implements Runnable
 {
 
 	private static final Logger logger = Logger.getLogger(RealtimePerfMonitor.class.getName());
-	
+	private String ip;
 	/**
 	 * 
+	 * 
 	 */
+	
+	public RealtimePerfMonitor(String ip)
+	{
+		this.ip = ip; 
+	}
 	@SuppressWarnings("unchecked")
 	public void run() 
 	{
@@ -111,7 +117,7 @@ public class RealtimePerfMonitor implements Runnable
 			String upload = (String) props.getVal("upload");
 			String host = (String) props.getVal("host");
 			if (!(upload == null || upload.toLowerCase().equals("false"))) {
-				Rbmq.postMessageToQueue(jsonO, host);
+				Rbmq.postMessageToQueue(jsonO, host, this.ip);
 			} 
 			
 			//System.out.println("VM list(CSV) =>" + stbldr.toString());
@@ -230,7 +236,7 @@ public class RealtimePerfMonitor implements Runnable
 	 */
 	public static void main(String[] args) throws Exception 
 	{
-
+		/*
 		PropUtils.init("/Users/rparashar/Desktop/vcenter_config.props");
 		
 		StatsHelper.initializePerfCounters();
@@ -238,5 +244,6 @@ public class RealtimePerfMonitor implements Runnable
 		RealtimePerfMonitor realtimePerfMonitor = new RealtimePerfMonitor();
 		Thread realtimePerfMonitorThread = new Thread(realtimePerfMonitor);
 		realtimePerfMonitorThread.start();
+		*/
 	}
 }

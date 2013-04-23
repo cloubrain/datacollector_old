@@ -10,7 +10,8 @@ import com.rabbitmq.client.ConnectionFactory;
 
 public class Rbmq {
 
-	public static void postMessageToQueue(JSONObject jsonO, String host) throws IOException
+	@SuppressWarnings("unchecked")
+	public static void postMessageToQueue(JSONObject jsonO, String host, String ip) throws IOException
 	{
 		ConnectionFactory factory = new ConnectionFactory();
 		factory.setUsername    ("guest");
@@ -25,6 +26,8 @@ public class Rbmq {
 	    
 	    channel.exchangeDeclare("CLSTR_MOITORING_EXCHANGE", "fanout"                      , true);
 	    channel.queueBind      ("CLSTR_MOITORING"         , "CLSTR_MOITORING_EXCHANGE", "");
+	    
+	    jsonO.put("ip", ip);
 	    
 	    channel.basicPublish("CLSTR_MOITORING_EXCHANGE", "", null, jsonO.toString().getBytes());
 	    
