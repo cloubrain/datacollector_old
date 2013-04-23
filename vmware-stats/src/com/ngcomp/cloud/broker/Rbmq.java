@@ -1,6 +1,7 @@
 package com.ngcomp.cloud.broker;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.json.simple.JSONObject;
 
@@ -11,7 +12,7 @@ import com.rabbitmq.client.ConnectionFactory;
 public class Rbmq {
 
 	@SuppressWarnings("unchecked")
-	public static void postMessageToQueue(JSONObject jsonO, String host, String ip) throws IOException
+	public static void postMessageToQueue(JSONObject jsonO, String host, Map<String, String> miscInfo) throws IOException
 	{
 		ConnectionFactory factory = new ConnectionFactory();
 		factory.setUsername    ("guest");
@@ -27,7 +28,11 @@ public class Rbmq {
 	    channel.exchangeDeclare("CLSTR_MOITORING_EXCHANGE", "fanout"                      , true);
 	    channel.queueBind      ("CLSTR_MOITORING"         , "CLSTR_MOITORING_EXCHANGE", "");
 	    
-	    jsonO.put("ip", ip);
+	    for(String k : miscInfo.keySet())
+	    {
+	    	jsonO.put(k, miscInfo.get(k));
+	    }
+	    //jsonO.put("ip", );
 	    
 	    channel.basicPublish("CLSTR_MOITORING_EXCHANGE", "", null, jsonO.toString().getBytes());
 	    

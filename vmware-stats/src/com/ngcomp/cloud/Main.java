@@ -22,6 +22,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.ngcomp.cloud.broker.thread.RealtimePerfMonitor;
 import com.ngcomp.cloud.broker.util.PropUtils;
@@ -48,6 +50,9 @@ public class Main
 		BufferedReader in = new BufferedReader(new InputStreamReader(
 		                whatismyip.openStream()));
 		String ip = in.readLine(); //you get the IP as a String
+
+		Map<String, String> miscInfo = new HashMap<String, String>();
+		miscInfo.put("ip", ip);
 		
 		final String configFilePath = "vcenter.config";
 		PropUtils.init(configFilePath);
@@ -60,7 +65,7 @@ public class Main
 		{
 			try
 			{
-				RealtimePerfMonitor realtimePerfMonitor = new RealtimePerfMonitor(ip);
+				RealtimePerfMonitor realtimePerfMonitor = new RealtimePerfMonitor(miscInfo);
 				Thread realtimePerfMonitorThread        = new Thread(realtimePerfMonitor);
 				realtimePerfMonitorThread.start();
 			}

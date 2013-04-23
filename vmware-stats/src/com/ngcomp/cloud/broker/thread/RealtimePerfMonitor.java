@@ -48,15 +48,15 @@ public class RealtimePerfMonitor implements Runnable
 {
 
 	private static final Logger logger = Logger.getLogger(RealtimePerfMonitor.class.getName());
-	private String ip;
+	private Map<String, String> miscInfo;
 	/**
 	 * 
 	 * 
 	 */
 	
-	public RealtimePerfMonitor(String ip)
+	public RealtimePerfMonitor(Map<String, String> miscInfo2)
 	{
-		this.ip = ip; 
+		this.miscInfo = miscInfo2; 
 	}
 	@SuppressWarnings("unchecked")
 	public void run() 
@@ -70,6 +70,13 @@ public class RealtimePerfMonitor implements Runnable
 			String url = (String) props.getVal("vcenter_url");
 			String uid = (String) props.getVal("vcenter_uid");
 			String pwd = (String) props.getVal("vcenter_pwd");
+			String name2 = "guest";
+			String nm = (String) props.getVal("name");
+			
+			if(nm!=null)
+				name2 = nm;
+			
+			this.miscInfo.put("name", name2);
 			
 			ServiceInstance si = new ServiceInstance(new URL(url), uid, pwd, true);
 			PerformanceManager perfMgr = si.getPerformanceManager();
@@ -117,7 +124,7 @@ public class RealtimePerfMonitor implements Runnable
 			String upload = (String) props.getVal("upload");
 			String host = (String) props.getVal("host");
 			if (!(upload == null || upload.toLowerCase().equals("false"))) {
-				Rbmq.postMessageToQueue(jsonO, host, this.ip);
+				Rbmq.postMessageToQueue(jsonO, host, this.miscInfo);
 			} 
 			
 			//System.out.println("VM list(CSV) =>" + stbldr.toString());

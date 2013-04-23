@@ -53,14 +53,26 @@ public class StatsHelper {
 
 		String ip = in.readLine(); //you get the IP as a String
 
+		Map<String, String> miscInfo = new HashMap<String, String>();
+		miscInfo.put("ip", ip);
+		
+		
 		PropUtils props = PropUtils.getInstance();
 		String upload = (String) props.getVal("upload");
 		String host = (String) props.getVal("host");
+		String nm = (String) props.getVal("name");
+		String name = "guest";
 		
 		boolean online = true;
 		if (upload == null || upload.toLowerCase().equals("false")) {
 			online = false;
 		}
+		if(nm!=null)
+		{
+			name = nm;
+		}
+		miscInfo.put("name", name);
+		
 		JSONObject jsonO = new JSONObject();
 		jsonO.put("name", "perfCounterNameMap");
 		
@@ -75,7 +87,7 @@ public class StatsHelper {
 		jsonO.put("COUNTERS", jsonA);
 		System.out.println(jsonO.toString());
 		if (online) {
-			Rbmq.postMessageToQueue(jsonO, host, ip);
+			Rbmq.postMessageToQueue(jsonO, host, miscInfo);
 		} else {
 			// TODO: send this data to local database or store to file
 			LocalDatabase.store(jsonO);
@@ -97,7 +109,7 @@ public class StatsHelper {
 		jsonO.put("COUNTERS", jsonA);
 		System.out.println(jsonO.toString());
 		if (online) {
-			Rbmq.postMessageToQueue(jsonO, host, ip);
+			Rbmq.postMessageToQueue(jsonO, host, miscInfo);
 		} else {
 			// TODO: store to local database or store to file
 			LocalDatabase.store(jsonO);
