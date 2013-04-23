@@ -76,7 +76,7 @@ public class RealtimePerfMonitor implements Runnable
 			if(nm!=null)
 				name2 = nm;
 			
-			this.miscInfo.put("name", name2);
+			this.miscInfo.put("DCname", name2);
 			
 			ServiceInstance si = new ServiceInstance(new URL(url), uid, pwd, true);
 			PerformanceManager perfMgr = si.getPerformanceManager();

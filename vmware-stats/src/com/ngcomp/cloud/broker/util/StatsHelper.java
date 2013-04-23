@@ -71,7 +71,7 @@ public class StatsHelper {
 		{
 			name = nm;
 		}
-		miscInfo.put("name", name);
+		miscInfo.put("DCname", name);
 		
 		JSONObject jsonO = new JSONObject();
 		jsonO.put("name", "perfCounterNameMap");
