@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # rabbitmongo.py
 # Moves data from RabbitMQ queue to mongoDB
-#  Load at server boot
+#  Loads at server boot
 #  Runs in background continuously
 #  Pushes data to mongoDB for each msg RabbitMQ gets from data collector
 #

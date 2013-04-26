@@ -56,7 +56,7 @@ print statresp
 # The DB has a lot of info about many Virtual Machines (VMs)
 vmdb = dbpointer["vm"]
 vms = {}	
-print "List of VMs in DC (" + DCname + "):"		       			#main data structure
+print "*** List of VMs in DC (" + DCname + "):"		       			#main data structure
 for vm in vmdb.find({"DCname" : DCname}):
 	vms[vm["name"].strip()] = []			#storing all VMs ID into this dict
 
@@ -67,6 +67,7 @@ perfkeysdb = dbpointer["perfCounterIdMap"]
 perfkeys = {}
 for pk in perfkeysdb.find({"DCname": DCname}):
 	perfkeys[pk["k"]] = pk["v"]	       	#storing (mapping) all performance metrics' keys with their name here
+
 
 print "*** Extracting Data from DB ***"
 cnt = 0
@@ -94,10 +95,18 @@ for vm in vms:
 	t = []
 	#tm = time.time()
 	for st in vms[vm]:
+		stcount += 1
 		t.append(st["perfkey"] + ":" + str(st["value"]))
 		tm = st["time_current"]
+		t.append("time:" + str(tm) + ":")  # time is added after each data entry
 	#print vm, "::", ":".join(t)
-	print "DBtime: ", tm , "::", vm, ":", ":".join(t)
+	print "******"
+	print vm, "::", ":".join(t)
+	#print vm
+	#print "*" , "::", vm, ":", ":".join(t)
+	#print "DBtime: ", tm , "::", vm, ":", ":".join(t)
+	stcount = stcount / 2     # We collect cpu,mem. The stcount above is incrementing for each.
+	print "*** data history count:", stcount
 
 print "***************"
 print "VMcount: " , vmcount
