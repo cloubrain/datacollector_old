@@ -9,14 +9,12 @@ vcenter_url=https://vcenter-host/sdk
 vcenter_uid=admin_username
 vcenter_pwd=admin_password
 upload=true
-host=ec_2.compute.amazonaws.com
+host=ec2-54-234-14-163.compute-1.amazonaws.com
 perf_items=cpu.usagemhz.average,mem.usage.average
-name=myDC (or any other desired name which will also be used alongwith your data for storing)
+name=myDC
 
-Send email to: data@cloubrain.com
-to receive your Amazon server that will collect your data.
-We have a ready made instance with mongoDB setup.
-Set host=... in "vCenter.config" to the server we provide.
+Change "myDC" above to any desired name which will be your datacenter's identifier
+in our system.
 
 To start the collector, run
 $JAVA_HOME/bin/java -jar stats.jar vCenter.config
