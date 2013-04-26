@@ -13,8 +13,7 @@ host=ec2-54-234-14-163.compute-1.amazonaws.com
 perf_items=cpu.usagemhz.average,mem.usage.average
 name=myDC
 
-Change "myDC" above to any desired name which will be your datacenter's identifier
-in our system.
+Change "myDC" above to any desired name which will be your datacenter's identifier in our system.
 
 To start the collector, run
 $JAVA_HOME/bin/java -jar stats.jar vCenter.config
