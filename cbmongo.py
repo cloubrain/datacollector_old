@@ -34,11 +34,19 @@ print "***************"
 
 dbname = "vmware"
 statscollname = "stats_new"
-DCname = "dkan-cluster-1-dc-19"			#DC name for which you want to extract
 
 dbcon = pymongo.Connection(myhost)		       	# opens connection to the DB
 dbpointer = dbcon[dbname]			      	# selects the DB as dbname
 dbstatscoll = dbpointer[statscollname]			# selecting the relevant collection
+
+def getClusters():
+	return dbpointer.vm.distinct('DCname')
+
+print "*** Print all cluster names ***"
+clusters = getClusters()
+print clusters
+print clusters[1]
+DCname = "dkan-cluster-1-dc-19"			#DC name for which you want to extract
 
 #print "*** Print DB ***"
 # Just print the whole contents of the DB ordered by earliest timestamp to latest
@@ -47,21 +55,23 @@ dbstatscoll = dbpointer[statscollname]			# selecting the relevant collection
 #for c in cur:				       		# iterating over the cursor
 #	print c		       		       	       	# printing everything
 
-#print "***************"
+print "***************"
 print "*** Store DB to vms dict: Takes time to transfer ***"
-#print "*** DB stats: ~2s/MB ***"
 statresp = dbpointer.command({'dbstats': 1})
 print statresp
+print "DB Storage Size in GBs:", float(statresp["storageSize"])/(1024*1024*1024)
+print "DB File Size in GBs:", float(statresp["fileSize"])/(1024*1024*1024)
+#raw_input()
 
 # The DB has a lot of info about many Virtual Machines (VMs)
 vmdb = dbpointer["vm"]
 vms = {}	
-print "*** List of VMs in DC (" + DCname + "):"		       			#main data structure
+print "*** List of VMs in DCcluster (" + DCname + "):"		       			#main data structure
 for vm in vmdb.find({"DCname" : DCname}):
 	vms[vm["name"].strip()] = []			#storing all VMs ID into this dict
 
 numvms = len(vms)
-print "*** # VMs in DB:", numvms, "***"
+print "*** # VMs in cluster:", numvms, "***"
 
 perfkeysdb = dbpointer["perfCounterIdMap"]
 perfkeys = {}
