@@ -1,10 +1,9 @@
 #####################################################################
 # cbmongo.py
-# This tests the MongoDB interface
-# Data is pulled from mongoDB and put into a dict: vms
-#  mongoDB is on EBS volume (currently 100GB)
+# cbmongo class gets data from mongoDB on our server
 #
 # TYPE: python cbmongo.py
+#  Example code at bottom
 #
 # Here is the code that writes to the server:
 #  https://github.com/cloubrain/vmwaredata
@@ -19,109 +18,123 @@
 # user: guest
 # pass: guest
 #
-#####################################################################
+# Copyright (C) 2013 by Cloubrain, Inc.
+# Pete C. Perlegos
+#
+######################################################################
 
 import os
 import sys
 import time
 import pymongo
 
-# This host has about a day of data in mongoDB
-myhost = "ec2-54-234-14-163.compute-1.amazonaws.com"
-print "***************"
-print "myhost = " + myhost
-print "***************"
+class CBmongo():
+	def __init__(self):
+		self.myhost = "ec2-54-234-14-163.compute-1.amazonaws.com"
+		self.DCname = "dkan-cluster-1-dc-19"   #DC name for which you want to extract. Might have multiple clusters.
+		print "***************"
+		print "myhost = " + self.myhost
+		print "***************"
+		self.dbname = "vmware"
+		self.statscollname = "stats_new"
 
-dbname = "vmware"
-statscollname = "stats_new"
+	def testdb(self):
+		#self.getStats()
+		print "*** Print all cluster names ***"
+		clusters = self.getClusters('')
+		print clusters
+		print "***************"
 
-dbcon = pymongo.Connection(myhost)		       	# opens connection to the DB
-dbpointer = dbcon[dbname]			      	# selects the DB as dbname
-dbstatscoll = dbpointer[statscollname]			# selecting the relevant collection
+		vmdata = {}  # vmdata sorted by clusterName: dict of dicts
+		clusters = clusters[3:]  # Do NOT try to read clusters[1]. Too big. Working on this.
+		for cl in clusters:  # get all VM data
+			print "* Getting data:", cl
+			vmdata[cl] = self.getData(cl)
+		print "*** WAIT then print all VM data ***"
+		time.sleep(5)
+		for clp in vmdata.keys(): # print all VM data
+			print "*** NO PRINTING:", clp
+			#self.printData(vmdata[clp])
 
-def getClusters():
-	return dbpointer.vm.distinct('DCname')
+		print "***************"
+		print "Done!"
+		print "***************"
 
-print "*** Print all cluster names ***"
-clusters = getClusters()
-print clusters
-print clusters[1]
-DCname = "dkan-cluster-1-dc-19"			#DC name for which you want to extract
+	def getStats(self):
+		print "*** DB Stats ***"
+		dbcon = pymongo.Connection(self.myhost)	        # opens connection to the DB
+		dbpointer = dbcon[self.dbname]		        # DB pointer
+		statresp = dbpointer.command({'dbstats': 1})
+		#print statresp
+		dbcon.close()  # Need to close DBconnection or it gets killed
+		print "DB Storage Size in GBs:", float(statresp["storageSize"])/(1024*1024*1024)
+		print "DB File Size in GBs:", float(statresp["fileSize"])/(1024*1024*1024)
+		print "***************"
 
-#print "*** Print DB ***"
-# Just print the whole contents of the DB ordered by earliest timestamp to latest
-#cur = dbstatscoll.find().sort([("time_current",1)])	# selecting everything from the collection and sorting by time_current
-#cur = dbstatscoll.find()
-#for c in cur:				       		# iterating over the cursor
-#	print c		       		       	       	# printing everything
+	def getClusters(self, DCname):
+		dbcon = pymongo.Connection(self.myhost)	        # opens connection to the DB
+		dbpointer = dbcon[self.dbname]		        # DB pointer
+		clusters = dbpointer.vm.distinct('DCname')
+		dbcon.close()  # Need to close DBconnection or it gets killed
+		return clusters
 
-print "***************"
-print "*** Store DB to vms dict: Takes time to transfer ***"
-statresp = dbpointer.command({'dbstats': 1})
-print statresp
-print "DB Storage Size in GBs:", float(statresp["storageSize"])/(1024*1024*1024)
-print "DB File Size in GBs:", float(statresp["fileSize"])/(1024*1024*1024)
-#raw_input()
+	def getData(self, DCname):
+		# returns a dict with VM data sorted by VM
+		vms = {}
+		dbcon = pymongo.Connection(self.myhost)	        # opens connection to the DB
+		dbpointer = dbcon[self.dbname]		        # DB pointer
+		dbstatscoll = dbpointer[self.statscollname]	# selecting the relevant collection
+		vmdb = dbpointer["vm"]
+		print "*** Get VMs in DCcluster (" + DCname + ")"
+		for vm in vmdb.find({"DCname" : DCname}):
+			vms[vm["name"].strip()] = []			#storing all VMs ID into this dict
 
-# The DB has a lot of info about many Virtual Machines (VMs)
-vmdb = dbpointer["vm"]
-vms = {}	
-print "*** List of VMs in DCcluster (" + DCname + "):"		       			#main data structure
-for vm in vmdb.find({"DCname" : DCname}):
-	vms[vm["name"].strip()] = []			#storing all VMs ID into this dict
+		numvms = len(vms)
+		print "* # VMs in cluster:", numvms
 
-numvms = len(vms)
-print "*** # VMs in cluster:", numvms, "***"
+		perfkeysdb = dbpointer["perfCounterIdMap"]
+		perfkeys = {}
+		for pk in perfkeysdb.find({"DCname": DCname}):
+			perfkeys[pk["k"]] = pk["v"]	       	#storing (mapping) all performance metrics' keys with their name here
+		
+		print "* Extracting Data from DB: Takes time to transfer *"
+		cnt = 0
+		for c in dbstatscoll.find({"DCname":DCname}):
+			cnt += 1
+			if cnt%200000 is 0:
+				print cnt/200000  # Progress indicator
+			r = c
+			try:
+				r["perfkey"] = perfkeys[c["key"]]
+				vms[c["name"]].append(r)			#storing the stats for vm in "vms" dict
+			except:
+				pass
+		print "* COMPLETE: got data from DBcluster", DCname, "***"
+		dbcon.close()  # Need to close DBconnection or it gets killed
+		time.sleep(5)
+		return vms
 
-perfkeysdb = dbpointer["perfCounterIdMap"]
-perfkeys = {}
-for pk in perfkeysdb.find({"DCname": DCname}):
-	perfkeys[pk["k"]] = pk["v"]	       	#storing (mapping) all performance metrics' keys with their name here
+	def printData(self, vms):
+		print "***************"
+		print "*** Print VMs ***"   # Sorted by VM
+		vmcount = 0   # VM counter
+		for vm in vms:
+			vmcount += 1    # vmcount increment for each VM
+			stcount = 0    # timestamp counter
+			t = []
+			for st in vms[vm]:
+				stcount += 1
+				t.append(st["perfkey"] + ":" + str(st["value"]))
+				tm = st["time_current"]
+				t.append("time:" + str(tm) + ":")  # time is added after each data entry
+			print "******"
+			print vm, "::", ":".join(t)
+			stcount = stcount / 2     # We collect cpu,mem. The stcount above is incrementing for each.
+			print "*** data history count:", stcount
+			print "VMcount: " , vmcount
+			print "***************"
 
-
-print "*** Extracting Data from DB ***"
-cnt = 0
-print "* Progress..."
-for c in dbstatscoll.find({"DCname":DCname}):
-	cnt += 1
-	if cnt%100000 is 0:
-		print cnt/100000  # Progress indicator
-
-	r = c
-	try:
-		r["perfkey"] = perfkeys[c["key"]]
-		vms[c["name"]].append(r)			#storing the stats for vm in "vms" dict
-	except:
-		pass
-	
-
-print "***************"
-print "*** Print VMs from StatStore ***"
-# Sorted by VM
-vmcount = 0   # VM counter
-for vm in vms:
-	vmcount += 1    # vmcount increment for each VM
-	stcount = 0    # timestamp counter
-	t = []
-	#tm = time.time()
-	for st in vms[vm]:
-		stcount += 1
-		t.append(st["perfkey"] + ":" + str(st["value"]))
-		tm = st["time_current"]
-		t.append("time:" + str(tm) + ":")  # time is added after each data entry
-	#print vm, "::", ":".join(t)
-	print "******"
-	print vm, "::", ":".join(t)
-	#print vm
-	#print "*" , "::", vm, ":", ":".join(t)
-	#print "DBtime: ", tm , "::", vm, ":", ":".join(t)
-	stcount = stcount / 2     # We collect cpu,mem. The stcount above is incrementing for each.
-	print "*** data history count:", stcount
-
-print "***************"
-print "VMcount: " , vmcount
-
-print "***************"
-print "Done!"
-print "***************"
+# TEST CODE
+cbdb = CBmongo()  #init CBmongo
+cbdb.testdb()  # tests functions
 
