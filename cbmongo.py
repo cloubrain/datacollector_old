@@ -5,6 +5,8 @@
 # TYPE: python cbmongo.py
 #  Example code at bottom
 #
+# CBmongo class to pull data from mongoDB
+#
 # Here is the code that writes to the server:
 #  https://github.com/cloubrain/vmwaredata
 # Multi-user version
@@ -46,10 +48,10 @@ class CBmongo():
 		print "***************"
 
 		vmdata = {}  # vmdata sorted by clusterName: dict of dicts
-		clusters = clusters[3:]  # Do NOT try to read clusters[1]. Too big. Working on this.
+		#clusters = clusters[3:]      # select clusters you want
 		for cl in clusters:  # get all VM data
-			print "* Getting data:", cl
-			vmdata[cl] = self.getData(cl)
+			#print "* Getting data:", cl
+			vmdata[cl] = self.getData(cl, 0, 1000)
 		print "*** WAIT then print all VM data ***"
 		time.sleep(5)
 		for clp in vmdata.keys(): # print all VM data
@@ -78,8 +80,11 @@ class CBmongo():
 		dbcon.close()  # Need to close DBconnection or it gets killed
 		return clusters
 
-	def getData(self, DCname):
-		# returns a dict with VM data sorted by VM
+	def getData(self, DCname, start=0, end=999999999999):
+		# Returns dict with all data from given cluster sorted by VM
+		#  DCname: cluster you want data from
+		#  start: place in time to go back (0=now, 1000=back in time)
+		#  end: number of data points you want
 		vms = {}
 		dbcon = pymongo.Connection(self.myhost)	        # opens connection to the DB
 		dbpointer = dbcon[self.dbname]		        # DB pointer
@@ -95,18 +100,18 @@ class CBmongo():
 		perfkeysdb = dbpointer["perfCounterIdMap"]
 		perfkeys = {}
 		for pk in perfkeysdb.find({"DCname": DCname}):
-			perfkeys[pk["k"]] = pk["v"]	       	#storing (mapping) all performance metrics' keys with their name here
+			perfkeys[pk["k"]] = pk["v"]    #storing (mapping) all performance metrics' keys with their name here
 		
 		print "* Extracting Data from DB: Takes time to transfer *"
 		cnt = 0
-		for c in dbstatscoll.find({"DCname":DCname}):
+		for c in dbstatscoll.find({"DCname":DCname}).sort([("time_current", -1)]).skip(start).limit(end):
 			cnt += 1
 			if cnt%200000 is 0:
-				print cnt/200000  # Progress indicator
+				print cnt/200000   # Progress indicator
 			r = c
 			try:
 				r["perfkey"] = perfkeys[c["key"]]
-				vms[c["name"]].append(r)			#storing the stats for vm in "vms" dict
+				vms[c["name"]].append(r)	    #storing the stats for vm in "vms" dict
 			except:
 				pass
 		print "* COMPLETE: got data from DBcluster", DCname, "***"
@@ -137,4 +142,5 @@ class CBmongo():
 # TEST CODE
 cbdb = CBmongo()  #init CBmongo
 cbdb.testdb()  # tests functions
+#print cbdb.getData("dkan-cluster-1-dc-19", 0,10000)
 

@@ -16,9 +16,11 @@ getStats()
   Print DB stats
 getClusters()
   Returns all clusterNames in DB
-getData(clusterName)
+getData(clusterName, start, end)
   Returns dict with all data from given cluster sorted by VM
-  FIX: Fails when cluster data is too large. Fix coming soon. I will break up the DB calls into chunks.
+   clusterName: cluster you want data from
+   start: place in time to go back (0=now, 1000=back in time)
+   end: number of data points you want
 printData(vms)
   Takes the dict from getData
   Prints data
