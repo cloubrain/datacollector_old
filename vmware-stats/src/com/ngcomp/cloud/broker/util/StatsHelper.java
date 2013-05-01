@@ -155,8 +155,11 @@ public class StatsHelper {
 		for(String item : csvItems.split(","))
 		{
 			try{
-				PerfMetricId metric = new PerfMetricId();			
-				metric.setCounterId(Integer.valueOf(StatsHelper.perfCounterNameMap.get(item)));
+				PerfMetricId metric = new PerfMetricId();
+				String cnm = StatsHelper.perfCounterNameMap.get(item);
+				if(cnm == null)
+					continue;
+				metric.setCounterId(Integer.valueOf(cnm));
 				metric.setInstance("*");
 				perfList.add(metric);
 			}
