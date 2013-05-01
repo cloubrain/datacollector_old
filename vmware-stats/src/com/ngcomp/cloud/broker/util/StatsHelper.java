@@ -154,10 +154,14 @@ public class StatsHelper {
 		
 		for(String item : csvItems.split(","))
 		{
-			PerfMetricId metric = new PerfMetricId();			
-			metric.setCounterId(Integer.valueOf(StatsHelper.perfCounterNameMap.get(item)));
-			metric.setInstance("*");		
-			perfList.add(metric);
+			try{
+				PerfMetricId metric = new PerfMetricId();			
+				metric.setCounterId(Integer.valueOf(StatsHelper.perfCounterNameMap.get(item)));
+				metric.setInstance("*");
+				perfList.add(metric);
+			}
+			catch(Exception e){
+			}
 			//metric = null;
 		}
 		
