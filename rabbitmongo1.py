@@ -30,7 +30,7 @@ dbhost = 'ec2-54-234-14-163.compute-1.amazonaws.com'
 rabbithost = 'ec2-54-234-14-163.compute-1.amazonaws.com'
 
 dbconnection = Connection(dbhost,27017)
-db = dbconnection['vmware2']
+db = dbconnection['vmware']
 collection = db['stats_new']
 
 connection = pika.BlockingConnection(pika.ConnectionParameters(host=rabbithost))
@@ -78,19 +78,11 @@ def callback(ch, method, properties, body):
                  except:
 			print traceback.print_exc()
                         pass
-		 record = {}
-		 record["uuid"] = i["uuid"]
-		 record["ip"] = ip
-		 record["DCname"] = dcname
-		 record["time_current"] = time.time()
-		 record["perfMetrics"] = i["STATS"]
-		 record["name"] = i["name"] 
-		 collection.insert(record)
-  #               for j in i['STATS']:
-   #                     record = {"time_current": time.time(), "name": i['name'], "uuid" : i['uuid'], "key" : j['k'], "value" : j['v']}
-#			record["ip"] = ip
-#			record["DCname"] = dcname
- #                       collection.insert(record)
+                 for j in i['STATS']:
+                        record = {"time_current": time.time(), "name": i['name'], "uuid" : i['uuid'], "key" : j['k'], "value" : j['v']}
+			record["ip"] = ip
+			record["DCname"] = dcname
+                        collection.insert(record)
     except:
 	print traceback.print_exc()
         pass

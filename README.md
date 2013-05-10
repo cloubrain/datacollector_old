@@ -21,15 +21,17 @@ getData(clusterName, start, end)
    clusterName: cluster you want data from
    start: place in time to go back (0=now, 1000=back in time)
    end: number of data points you want
-printData(vms)
+printData(vms) DOES NOT WORK WITH UPDATED getData
   Takes the dict from getData
   Prints data
 
 rabbitmongo.py
   Moves data from RabbitMQ queue to mongoDB on large EBS volume
 
-cbmongo2.py  OLD VERSION
+cbmongo2.py  OLD VERSION not used
   Script to pull data from mongoDB
   Stores data to a dict called: vms
   print vms
 
+cbmongo1.py rabbitmongo1.py
+  OLD VERSIONS: not used

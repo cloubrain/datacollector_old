@@ -28,7 +28,7 @@
 import os
 import sys
 import time
-import pymongo, copy
+import pymongo
 
 class CBmongo():
 	def __init__(self):
@@ -37,7 +37,7 @@ class CBmongo():
 		print "***************"
 		print "myhost = " + self.myhost
 		print "***************"
-		self.dbname = "vmware2"
+		self.dbname = "vmware"
 		self.statscollname = "stats_new"
 
 	def testdb(self):
@@ -48,15 +48,15 @@ class CBmongo():
 		print "***************"
 
 		vmdata = {}  # vmdata sorted by clusterName: dict of dicts
-		#clusters = clusters[3:]      # select clusters you want
+		clusters = clusters[3:]      # select clusters you want
 		for cl in clusters:  # get all VM data
 			#print "* Getting data:", cl
-			vmdata[cl] = self.getData(cl, 0, 1000)
+			vmdata[cl] = self.getData(cl, 0, 10000)
 		print "*** WAIT then print all VM data ***"
 		time.sleep(5)
 		for clp in vmdata.keys(): # print all VM data
-			print "*** NO PRINTING:", clp
-			#self.printData(vmdata[clp])
+			#print "*** NO PRINTING:", clp
+			self.printData(vmdata[clp])
 
 		print "***************"
 		print "Done!"
@@ -85,7 +85,6 @@ class CBmongo():
 		#  DCname: cluster you want data from
 		#  start: place in time to go back (0=now, 1000=back in time)
 		#  end: number of data points you want
-		# Each time entry is a dict: perfMetrics returns a list of all the metrics
 		vms = {}
 		dbcon = pymongo.Connection(self.myhost)	        # opens connection to the DB
 		dbpointer = dbcon[self.dbname]		        # DB pointer
@@ -110,23 +109,17 @@ class CBmongo():
 			if cnt%200000 is 0:
 				print cnt/200000   # Progress indicator
 			r = c
-			perfMetrics = c["perfMetrics"]
-			for x2 in perfMetrics:
-				try:
-				 	x2["perfkey"] = perfkeys[x2["k"]]
-					try:
-						del x["perfMetrics"]
-					except:
-						pass
-				except:
-					pass
-                        vms[c["name"]].append(copy.deepcopy(c))
+			try:
+				r["perfkey"] = perfkeys[c["key"]]
+				vms[c["name"]].append(r)	    #storing the stats for vm in "vms" dict
+			except:
+				pass
 		print "* COMPLETE: got data from DBcluster", DCname, "***"
 		dbcon.close()  # Need to close DBconnection or it gets killed
 		time.sleep(5)
 		return vms
 
-	def printData(self, vms):  # NOT WORKING with new getData
+	def printData(self, vms):
 		print "***************"
 		print "*** Print VMs ***"   # Sorted by VM
 		vmcount = 0   # VM counter
@@ -148,9 +141,6 @@ class CBmongo():
 
 # TEST CODE
 cbdb = CBmongo()  #init CBmongo
-#cbdb.testdb()  # tests functions NEW VERSION COMING SOON
-#print cbdb.getData("dkan-cluster-1-dc-19", 0,10000)
-vms = cbdb.getData("dkan-cluster-1-dc-19", 0,1000)
-for vm in vms:
-	print vm
-	print vms[vm]
+#cbdb.testdb()  # tests functions
+print cbdb.getData("dkan-cluster-1-dc-19", 0,10000)
+
