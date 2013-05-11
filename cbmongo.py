@@ -51,13 +51,12 @@ class CBmongo():
 		#clusters = clusters[3:]      # select clusters you want
 		for cl in clusters:  # get all VM data
 			#print "* Getting data:", cl
-			vmdata[cl] = self.getData(cl, 0, 1000)
+			vmdata[cl] = self.getData(cl, 0, 100)
 		print "*** WAIT then print all VM data ***"
 		time.sleep(5)
 		for clp in vmdata.keys(): # print all VM data
-			print "*** NO PRINTING:", clp
-			#self.printData(vmdata[clp])
-
+			#print "*** NO PRINTING:", clp
+			self.printData(vmdata[clp])
 		print "***************"
 		print "Done!"
 		print "***************"
@@ -84,7 +83,7 @@ class CBmongo():
 		# Returns dict with all data from given cluster sorted by VM
 		#  DCname: cluster you want data from
 		#  start: place in time to go back (0=now, 1000=back in time)
-		#  end: number of data points you want
+		#  end: number of data points you want: (end-start)/#VMs = timeSteps/VM
 		# Each time entry is a dict: perfMetrics returns a list of all the metrics
 		vms = {}
 		dbcon = pymongo.Connection(self.myhost)	        # opens connection to the DB
@@ -123,34 +122,29 @@ class CBmongo():
                         vms[c["name"]].append(copy.deepcopy(c))
 		print "* COMPLETE: got data from DBcluster", DCname, "***"
 		dbcon.close()  # Need to close DBconnection or it gets killed
-		time.sleep(5)
 		return vms
 
-	def printData(self, vms):  # NOT WORKING with new getData
+	def printData(self, vms):   # Good example for pulling data from new getData
 		print "***************"
 		print "*** Print VMs ***"   # Sorted by VM
 		vmcount = 0   # VM counter
 		for vm in vms:
 			vmcount += 1    # vmcount increment for each VM
+			print vm
 			stcount = 0    # timestamp counter
-			t = []
 			for st in vms[vm]:
 				stcount += 1
-				t.append(st["perfkey"] + ":" + str(st["value"]))
 				tm = st["time_current"]
-				t.append("time:" + str(tm) + ":")  # time is added after each data entry
+				perf = st["perfMetrics"]
+				print "* time: " + str(tm) + " :: " + str(perf)
 			print "******"
-			print vm, "::", ":".join(t)
-			stcount = stcount / 2     # We collect cpu,mem. The stcount above is incrementing for each.
-			print "*** data history count:", stcount
-			print "VMcount: " , vmcount
+			print "* data history count:", stcount
 			print "***************"
+		print "VMcount: " , vmcount
+		print "***************"
 
 # TEST CODE
 cbdb = CBmongo()  #init CBmongo
-#cbdb.testdb()  # tests functions NEW VERSION COMING SOON
-#print cbdb.getData("dkan-cluster-1-dc-19", 0,10000)
-vms = cbdb.getData("dkan-cluster-1-dc-19", 0,1000)
-for vm in vms:
-	print vm
-	print vms[vm]
+cbdb.testdb()  # tests functions
+#vms = cbdb.getData("dkan-cluster-1-dc-19", 0,1000)
+#cbdb.printData(vms)
