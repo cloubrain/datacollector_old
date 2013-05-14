@@ -55,8 +55,8 @@ class CBmongo():
 		print "*** WAIT then print all VM data ***"
 		time.sleep(5)
 		for clp in vmdata.keys(): # print all VM data
-			#print "*** NO PRINTING:", clp
-			self.printData(vmdata[clp])
+			print "*** NO PRINTING:", clp
+			#self.printData(vmdata[clp])
 		print "***************"
 		print "Done!"
 		print "***************"
@@ -143,8 +143,45 @@ class CBmongo():
 		print "VMcount: " , vmcount
 		print "***************"
 
+	def getcpu(self, dcname, ts):   # Get CPU data
+		# dcname: cluster, ts: number of timesteps
+		print "***************"
+		print "*** Get CPU data ***"   # Sorted by VM
+		vms = self.getData(dcname, 0, 21*ts)    # multiply ts by num VMs in cluster
+		vmscpu = {}
+		vmcount = 0   # VM counter
+		for vm in vms:
+			vmcount += 1    # vmcount increment for each VM
+			stcount = 0    # timestamp counter
+			cpudata = []
+			for st in vms[vm]:
+				stcount += 1
+				tm = st["time_current"]
+				perf = st["perfMetrics"]
+				cpupk = perf[5]    # you can get any perf metric like this
+				cpuv = cpupk['v']    # type is unicode
+				cpuv = int(float(cpuv))
+				while cpuv > 100:
+					cpuv = cpuv / 10
+				cpudata.append(cpuv)
+			cpudata.reverse()
+			vmscpu[vm] = cpudata
+		print "VMcount: " , vmcount
+		print "***************"
+		return vmscpu
+
+"""
 # TEST CODE
 cbdb = CBmongo()  #init CBmongo
-cbdb.testdb()  # tests functions
-#vms = cbdb.getData("dkan-cluster-1-dc-19", 0,1000)
+#cbdb.testdb()  # tests functions
+cbdb.getStats()
+#vms = cbdb.getData("dkan-cluster-1-dc-19", 0, 210)
 #cbdb.printData(vms)
+vmscpu = cbdb.getcpu("dkan-cluster-1-dc-19", 20)
+for vm in vmscpu:
+	print vm
+	print vmscpu[vm]
+while vmscpu:
+	vm = vmscpu.popitem()
+	print vm[1]
+"""
