@@ -29,6 +29,7 @@ import os
 import sys
 import time
 import pymongo, copy
+import matplotlib.pyplot as plt
 
 class CBmongo():
 	def __init__(self):
@@ -56,7 +57,7 @@ class CBmongo():
 		time.sleep(5)
 		for clp in vmdata.keys(): # print all VM data
 			print "*** NO PRINTING:", clp
-			#self.printData(vmdata[clp])
+			self.printData(vmdata[clp])
 		print "***************"
 		print "Done!"
 		print "***************"
@@ -161,8 +162,8 @@ class CBmongo():
 				cpupk = perf[5]    # you can get any perf metric like this
 				cpuv = cpupk['v']    # type is unicode
 				cpuv = int(float(cpuv))
-				while cpuv > 100:
-					cpuv = cpuv / 10
+				while cpuv > 100:  # Scale down for now
+					cpuv = cpuv / 5
 				cpudata.append(cpuv)
 			cpudata.reverse()
 			vmscpu[vm] = cpudata
@@ -170,14 +171,90 @@ class CBmongo():
 		print "***************"
 		return vmscpu
 
-"""
+	def plotcpu(self, vms):
+		# Takes a dict of VMs with list of 1 perfMetric
+		print "* Plot Data into file: cpuplot.png"
+		for vm in vms:
+			data = vms[vm]
+			plt.plot(data)
+		plt.savefig("cpuplot.png")
+
+	def plotcpus(self, vms):
+		# Takes a dict of VMs with list of 1 perfMetric
+		for vm in vms:
+			plt.clf()
+			vmdata = vms[vm]
+			data = vmdata
+			plt.plot(data)
+			plt.savefig("plot_" + str(vm) + ".png")
+		print "* Plot Data into files: plot_vmname.png"
+
+	def plotPerf(self, dcname, ts):   # Get and plot perf 
+		# dcname: cluster, ts: number of timesteps
+		print "***************"
+		print "*** Plot Data ***"   # Sorted by VM
+		vms = self.getData(dcname, 0, 21*ts)    # multiply ts by num VMs in cluster
+		#print vms
+		for vm in vms:
+			plt.clf()
+			vmdata = vms[vm]
+			data = []
+			for st in vmdata:
+				tm = st["time_current"]
+				perf = st["perfMetrics"]
+				for p in perf:  # Eventually resort by perfMetrics
+					pv = int(float(p['v']))
+				cpupk = perf[5]    # you can get any perf metric like this
+				cpuv = cpupk['v']    # type is unicode
+				cpuv = int(float(cpuv))
+				data.append(cpuv)
+			data.reverse()
+			plt.plot(data)
+			plt.savefig("plot_" + str(vm) + ".png")
+		print "* Plot Data into files: plot_vmname.png"
+
+	def plotPerfs(self, dcname, ts):   # Get and plot perfs
+		# dcname: cluster, ts: number of timesteps
+		print "***************"
+		print "*** Plot all perfMetrics for 1 VM ***"   # Sorted by VM
+		vms = self.getData(dcname, 0, 21*ts)    # multiply ts by num VMs in cluster
+		vm = vms.popitem()
+		vm = vms.popitem()  # Do this multiple times to get later VMs
+		vm = vms.popitem()
+		#vm = vms.popitem()
+		#vm = vms.popitem()
+		#vm = vms.popitem()
+		vmdata = vm[1]
+		i = 0
+		while i < 16:
+			plt.clf()
+			data = []
+			for st in vmdata:
+				tm = st["time_current"]
+				perf = st["perfMetrics"]
+				cpupk = perf[i]    # you can get any perf metric like this
+				cpuv = cpupk['v']    # type is unicode
+				cpuv = int(float(cpuv))
+				data.append(cpuv)
+			data.reverse()
+			plt.plot(data)
+			plt.savefig("plot_" + str(i) + ".png")
+			i += 1
+		print "* Plot Data into files: plot_i.png"
+
 # TEST CODE
 cbdb = CBmongo()  #init CBmongo
 #cbdb.testdb()  # tests functions
-cbdb.getStats()
+#cbdb.getStats()
+
 #vms = cbdb.getData("dkan-cluster-1-dc-19", 0, 210)
 #cbdb.printData(vms)
-vmscpu = cbdb.getcpu("dkan-cluster-1-dc-19", 20)
+
+#vmscpu = cbdb.getcpu("dkan-cluster-1-dc-19", 40)
+#cbdb.plotcpus(vmscpu)
+cbdb.plotPerfs("dkan-cluster-1-dc-19", 50)
+
+"""
 for vm in vmscpu:
 	print vm
 	print vmscpu[vm]
