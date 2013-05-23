@@ -171,6 +171,60 @@ class CBmongo():
 		print "***************"
 		return vmscpu
 
+	def getPerfs(self, ts, perfs):   # Get data
+		# Returns: dict of VMs each of which contains: dict of lists of data points: time, perfName1, perfName2, ...
+		#  vmsdata[vmName][perfName]: list of datapoints
+		# ts: number of timesteps
+		# perfs: list of requests perfMetrics by index: you always get 'time'
+		# 0: disk.commandsAborted.summation
+		# 1: mem.swapout.average 
+		# 2: disk.busResets.summation 
+		# 3: mem.swapped.average 
+		# 4: mem.consumed.average 
+		# 5: cpu.ready.summation
+		# 6: mem.swapin.average 
+		# 7: mem.overhead.average 
+		# 8: mem.usage.average
+		# 9: net.transmitted.average 
+		# 10: net.usage.average 
+		# 11: net.received.average
+		# 12: cpu.usagemhz.average 
+		# 13: mem.active.average 
+		# 14: disk.write.average 
+		# 15: disk.read.average
+		print "***************"
+		print "*** Get data ***"   # Sorted by VM
+		vms = self.getData(self.DCname, 0, 21*ts)    # multiply ts by num VMs in cluster
+		vmsdata = {}
+		vmcount = 0   # VM counter
+		for vm in vms:
+			vmcount += 1    # vmcount increment for each VM
+			data = []
+			for st in vms[vm]:   # get timestamps
+				tm = st["time_current"]
+				data.append(int(float(tm)))
+			data.reverse()
+			vmdata = {}
+			vmdata['time'] = data
+			for i in perfs:    # get every requested perfMetric
+				data = []
+				for st in vms[vm]:
+					perf = st["perfMetrics"]
+					pk = perf[i]    # you can get any perf metric like this
+					v = pk['v']    # type is unicode
+					v = int(float(v))
+					while v > 100:  # Scale down for now
+						v = v / 5
+					data.append(v)
+				data.reverse()
+				perfName = str(pk['perfkey'])  # perfMetric called by perfkey
+				vmdata[perfName] = data
+				#print vm
+				#print data
+			vmsdata[vm] = vmdata
+		print "VMcount: " , vmcount
+		return vmsdata
+
 	def plotcpu(self, vms):
 		# Takes a dict of VMs with list of 1 perfMetric
 		print "* Plot Data into file: cpuplot.png"
@@ -252,13 +306,11 @@ cbdb = CBmongo()  #init CBmongo
 
 #vmscpu = cbdb.getcpu("dkan-cluster-1-dc-19", 40)
 #cbdb.plotcpus(vmscpu)
-cbdb.plotPerfs("dkan-cluster-1-dc-19", 50)
+#cbdb.plotPerfs("dkan-cluster-1-dc-19", 50)
+vmsd = cbdb.getPerfs(50, [5, 7, 10, 11, 12])
 
-"""
-for vm in vmscpu:
+for vm in vmsd:
+	print "********"
 	print vm
-	print vmscpu[vm]
-while vmscpu:
-	vm = vmscpu.popitem()
-	print vm[1]
-"""
+	print vmsd[vm]
+print "**** DONE ****"
