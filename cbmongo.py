@@ -30,6 +30,7 @@ import sys
 import time
 import pymongo, copy
 import matplotlib.pyplot as plt
+import pickle
 
 class CBmongo():
 	def __init__(self):
@@ -144,6 +145,23 @@ class CBmongo():
 		print "VMcount: " , vmcount
 		print "***************"
 
+	def saveData(self, ts, filen):   # Get data and save to file
+		# ts: number of timesteps
+		# filen: save file name
+		vms = self.getData(self.DCname, 0, 21*ts)    # multiply ts by num VMs in cluster
+		#filen = 'vmsdata.txt'
+		with open(filen, 'wb') as handle:
+			pickle.dump(vms, handle)
+		print "Saved data to file:" + filen
+
+
+	def loadData(self, filen):   # Load data from file
+		# filen: name of file where you saved your dict of vm data
+		# Returns vms from getData
+		with open(filen, 'rb') as handle:
+			vmsd = pickle.loads(handle.read())
+		return vmsd
+
 	def getcpu(self, dcname, ts):   # Get CPU data
 		# dcname: cluster, ts: number of timesteps
 		print "***************"
@@ -171,7 +189,7 @@ class CBmongo():
 		print "***************"
 		return vmscpu
 
-	def getPerfs(self, ts, perfs):   # Get data
+	def getPerfs(self, ts, filen, perfs):   # Get data
 		# Returns: dict of VMs each of which contains: dict of lists of data points: time, perfName1, perfName2, ...
 		#  vmsdata[vmName][perfName]: list of datapoints
 		# ts: number of timesteps
@@ -194,7 +212,8 @@ class CBmongo():
 		# 15: disk.read.average
 		print "***************"
 		print "*** Get data ***"   # Sorted by VM
-		vms = self.getData(self.DCname, 0, 21*ts)    # multiply ts by num VMs in cluster
+		#vms = self.getData(self.DCname, 0, 21*ts)    # multiply ts by num VMs in cluster
+		vms = cbdb.loadData(filen)   # ts is not used when 
 		vmsdata = {}
 		vmcount = 0   # VM counter
 		for vm in vms:
@@ -272,6 +291,7 @@ class CBmongo():
 		print "***************"
 		print "*** Plot all perfMetrics for 1 VM ***"   # Sorted by VM
 		vms = self.getData(dcname, 0, 21*ts)    # multiply ts by num VMs in cluster
+		#vms = cbdb.loadData('vmsdata1000.txt')
 		vm = vms.popitem()
 		vm = vms.popitem()  # Do this multiple times to get later VMs
 		vm = vms.popitem()
@@ -300,14 +320,16 @@ class CBmongo():
 cbdb = CBmongo()  #init CBmongo
 #cbdb.testdb()  # tests functions
 #cbdb.getStats()
-
 #vms = cbdb.getData("dkan-cluster-1-dc-19", 0, 210)
 #cbdb.printData(vms)
 
 #vmscpu = cbdb.getcpu("dkan-cluster-1-dc-19", 40)
 #cbdb.plotcpus(vmscpu)
 #cbdb.plotPerfs("dkan-cluster-1-dc-19", 50)
-vmsd = cbdb.getPerfs(50, [5, 7, 10, 11, 12])
+
+cbdb.saveData(20, 'vmsdata.txt')
+#vmsd = cbdb.loadData('vmsdata.txt')
+vmsd = cbdb.getPerfs(10, 'vmsdata.txt', [5, 7, 10, 11, 12])
 
 for vm in vmsd:
 	print "********"
