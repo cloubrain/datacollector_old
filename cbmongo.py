@@ -34,12 +34,14 @@ import pickle
 
 class CBmongo():
 	def __init__(self):
-		self.myhost = "ec2-54-234-14-163.compute-1.amazonaws.com"
+		#self.myhost = "ec2-54-234-14-163.compute-1.amazonaws.com"
+		self.myhost = "datacollector.cloubrain.com"
 		self.DCname = "dkan-cluster-1-dc-19"   #DC name for which you want to extract. Might have multiple clusters.
 		print "***************"
 		print "myhost = " + self.myhost
 		print "***************"
 		self.dbname = "vmware2"
+		self.dbname = "openstack"
 		self.statscollname = "stats_new"
 
 	def testdb(self):
@@ -320,13 +322,14 @@ class CBmongo():
 cbdb = CBmongo()  #init CBmongo
 #cbdb.testdb()  # tests functions
 #cbdb.getStats()
+print cbdb.getClusters('')
 #vms = cbdb.getData("dkan-cluster-1-dc-19", 0, 210)
 #cbdb.printData(vms)
 
 #vmscpu = cbdb.getcpu("dkan-cluster-1-dc-19", 40)
 #cbdb.plotcpus(vmscpu)
 #cbdb.plotPerfs("dkan-cluster-1-dc-19", 50)
-
+"""
 cbdb.saveData(20, 'vmsdata.txt')
 #vmsd = cbdb.loadData('vmsdata.txt')
 vmsd = cbdb.getPerfs(10, 'vmsdata.txt', [5, 7, 10, 11, 12])
@@ -336,3 +339,4 @@ for vm in vmsd:
 	print vm
 	print vmsd[vm]
 print "**** DONE ****"
+"""
