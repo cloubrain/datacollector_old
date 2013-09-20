@@ -323,6 +323,7 @@ cbdb = CBmongo()  #init CBmongo
 #cbdb.testdb()  # tests functions
 #cbdb.getStats()
 print cbdb.getClusters('')
+print cbdb.getData('testDCpete', 0, 10)
 #vms = cbdb.getData("dkan-cluster-1-dc-19", 0, 210)
 #cbdb.printData(vms)
 
