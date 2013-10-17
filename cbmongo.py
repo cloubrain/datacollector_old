@@ -41,7 +41,7 @@ class CBmongo():
 		print "myhost = " + self.myhost
 		print "***************"
 		self.dbname = "vmware2"
-		self.dbname = "openstack"
+		#self.dbname = "openstack"
 		self.statscollname = "stats_new"
 
 	def testdb(self):
@@ -323,9 +323,11 @@ cbdb = CBmongo()  #init CBmongo
 #cbdb.testdb()  # tests functions
 #cbdb.getStats()
 print cbdb.getClusters('')
-print cbdb.getData('testDCpete', 0, 10)
-#vms = cbdb.getData("dkan-cluster-1-dc-19", 0, 210)
-#cbdb.printData(vms)
+#osdata = cbdb.getData('testDCpete', 0, 10)
+#cbdb.printData(osdata)
+
+vms = cbdb.getData("dkan-cluster-1-dc-19", 0, 210)
+cbdb.printData(vms)
 
 #vmscpu = cbdb.getcpu("dkan-cluster-1-dc-19", 40)
 #cbdb.plotcpus(vmscpu)
