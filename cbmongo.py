@@ -40,8 +40,8 @@ class CBmongo():
 		print "***************"
 		print "myhost = " + self.myhost
 		print "***************"
-		self.dbname = "vmware2"
-		#self.dbname = "openstack"
+		#self.dbname = "vmware2"
+		self.dbname = "openstack"
 		self.statscollname = "stats_new"
 
 	def testdb(self):
@@ -326,7 +326,9 @@ print cbdb.getClusters('')
 #osdata = cbdb.getData('testDCpete', 0, 10)
 #cbdb.printData(osdata)
 
-vms = cbdb.getData("dkan-cluster-1-dc-19", 0, 210)
+#vms = cbdb.getData("dkan-cluster-1-dc-19", 0, 42)
+#cbdb.printData(vms)
+vms = cbdb.getData("devstack1test", 0, 20)
 cbdb.printData(vms)
 
 #vmscpu = cbdb.getcpu("dkan-cluster-1-dc-19", 40)
