@@ -8,8 +8,8 @@
 # CBmongo class to pull data from mongoDB
 #
 # Here is the code that writes to the server:
-#  https://github.com/cloubrain/vmwaredata
-# Multi-user version
+#  https://github.com/cloubrain/vmwaredata   # Multi-user version
+#  https://github.com/cloubrain/dcdata/rabbitosmongo.py
 # 
 # ssh into the server:
 #  ssh -i cbopen.pem ec2-user@myhost
@@ -20,7 +20,7 @@
 # user: guest
 # pass: guest
 #
-# Copyright (C) 2013 by Cloubrain, Inc.
+# Copyright (C) 2014 by Cloubrain, Inc.
 # Pete C. Perlegos
 #
 ######################################################################
@@ -43,6 +43,7 @@ class CBmongo():
 		#self.dbname = "vmware2"
 		self.dbname = "openstack"
 		self.statscollname = "stats_new"
+		self.DCname = "devstackR"
 
 	def testdb(self):
 		self.getStats()
@@ -79,7 +80,11 @@ class CBmongo():
 	def getClusters(self, DCname):
 		dbcon = pymongo.Connection(self.myhost)	        # opens connection to the DB
 		dbpointer = dbcon[self.dbname]		        # DB pointer
-		clusters = dbpointer.vm.distinct('DCname')
+		#clusters = dbpointer.vm.distinct('DCname')
+		dbstatscoll = dbpointer[self.statscollname]	# selecting the relevant collection
+		clusters = dbstatscoll.distinct('DCname')
+		#print "Collection Count:"
+		#print dbstatscoll.count()
 		dbcon.close()  # Need to close DBconnection or it gets killed
 		return clusters
 
@@ -127,6 +132,23 @@ class CBmongo():
 		print "* COMPLETE: got data from DBcluster", DCname, "***"
 		dbcon.close()  # Need to close DBconnection or it gets killed
 		return vms
+
+	def getosData(self, DCname, start=0, end=999999999999):
+		# Returns list with all data from given OpenStack cluster sorted by time
+		#  DCname: cluster you want data from
+		#  start: place in time to go back (0=now, 1000=back in time)
+		#  end: number of data points you want
+		# Each time entry is a dict
+		vmdata = []
+		dbcon = pymongo.Connection(self.myhost)	        # opens connection to the DB
+		dbpointer = dbcon[self.dbname]		        # DB pointer
+		dbstatscoll = dbpointer[self.statscollname]	# selecting the relevant collection
+		print "* Extracting Data from DB: Takes time to transfer *"
+		for c in dbstatscoll.find({"DCname":DCname}).sort([("time_current", -1)]).skip(start).limit(end):
+                        vmdata.append(copy.deepcopy(c))
+		print "* COMPLETE: got data from DBcluster", DCname, "***"
+		dbcon.close()  # Need to close DBconnection or it gets killed
+		return vmdata
 
 	def printData(self, vms):   # Good example for pulling data from new getData
 		print "***************"
@@ -326,10 +348,17 @@ print cbdb.getClusters('')
 #osdata = cbdb.getData('testDCpete', 0, 10)
 #cbdb.printData(osdata)
 
+osdata = cbdb.getosData(cbdb.DCname, 0, 10)
+for ts in osdata:
+	print "********"
+	print ts["time_current"]
+	print ts
+print "**** DONE ****"
+
 #vms = cbdb.getData("dkan-cluster-1-dc-19", 0, 42)
 #cbdb.printData(vms)
-vms = cbdb.getData("devstack1test", 0, 20)
-cbdb.printData(vms)
+#vms = cbdb.getData(cbdb.DCname, 0, 10)
+#cbdb.printData(vms)
 
 #vmscpu = cbdb.getcpu("dkan-cluster-1-dc-19", 40)
 #cbdb.plotcpus(vmscpu)
