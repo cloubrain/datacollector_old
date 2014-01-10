@@ -36,8 +36,8 @@ collection = db['stats_new']
 
 connection = pika.BlockingConnection(pika.ConnectionParameters(host=rabbithost))
 channel = connection.channel()
-exchange = 'openstack'
-queue_name= 'openstack'
+exchange = 'openstack_'
+queue_name= 'openstackm'
 #channel.exchange_declare(exchange=exchange, type='fanout')
 channel.queue_bind(exchange=exchange, queue=queue_name)
 
