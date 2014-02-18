@@ -10,12 +10,9 @@ Scripts to pull cloud data from mongoDB server.
 cbmongo.py  
 CBmongo class to pull data from mongoDB  
 See example at bottom for calling CBmongo from your analyzer  
-testdb()  
-  Example code to use CBmongo functions  
-getStats()  
-  Print DB stats  
-getClusters()  
-  Returns all clusterNames in DB  
+testdb(): Example code to use CBmongo functions  
+getStats(): Print DB stats  
+getClusters(): Returns all clusterNames in DB  
 getData(clusterName, start, end)  
   Returns dict with all data from given cluster sorted by VM  
    clusterName: cluster you want data from  
@@ -30,6 +27,8 @@ rabbitmongo.py
   
 rabbitosmongo.py  
   Moves OpenStack data from RabbitMQ queue to mongoDB on large EBS volume  
+  
+OLD FILES  
   
 cbmongo2.py  OLD VERSION not used  
   Script to pull data from mongoDB  
