@@ -5,7 +5,7 @@ Type:    python cbmongo.py
   
 Scripts to pull cloud data from mongoDB server.  
   Data is pulled from mongoDB and put into a dict  
-  mongoDB is on EBS volume (currently 100GB)  
+  mongoDB is on EBS volume (currently 200GB)  
   
 cbmongo.py  
 CBmongo class to pull data from mongoDB  
