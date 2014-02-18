@@ -14,19 +14,20 @@ testdb(): Example code to use CBmongo functions
 getStats(): Print DB stats  
 getClusters(): Returns all clusterNames in DB  
 getData(clusterName, start, end)  
-  Returns dict with all data from given cluster sorted by VM  
-   clusterName: cluster you want data from  
-   start: place in time to go back (0=now, 1000=back in time)  
-   end: number of data points you want  
+  -Returns dict with all data from given cluster sorted by VM  
+   -clusterName: cluster you want data from  
+   -start: place in time to go back (0=now, 1000=back in time)  
+   -end: number of data points you want  
 printData(vms) DOES NOT WORK WITH UPDATED getData  
-  Takes the dict from getData  
-  Prints data  
+  -Takes the dict from getData  
+  -Prints data  
   
 rabbitmongo.py  
   Moves VMware data from RabbitMQ queue to mongoDB on large EBS volume  
   
 rabbitosmongo.py  
   Moves OpenStack data from RabbitMQ queue to mongoDB on large EBS volume  
+  
   
 OLD FILES  
   
