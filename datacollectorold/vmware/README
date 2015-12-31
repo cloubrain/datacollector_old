@@ -1,0 +1,24 @@
+Data collector for VMWare
+CloubrAIn, Inc.
+
+The data collector collects the data via VCenter in VMWare. It automatically sends the data to our server.
+
+Java 1.6 or above must be installed and $JAVA_HOME defined. Edit "vCenter.config" file as below
+
+vcenter_url=https://vcenter-host/sdk
+vcenter_uid=admin_username
+vcenter_pwd=admin_password
+upload=true
+host=ec2-54-234-14-163.compute-1.amazonaws.com
+perf_items=cpu.ready.summation,cpu.usagemhz.average,disk.busResets.summation,disk.commandsAborted.summation,disk.totalLatency.average,disk.queueLatency.average,disk.read.average,disk.write.average,mem.usage.average,mem.active.average,mem.consumed.average,mem.overhead.average,mem.swapin.average,mem.swapout.average,mem.swapped.average,mem.vmmemctl.average(balloon),net.received.average,net.transmitted.average,net.usage.average
+name=myDC
+
+Change "myDC" above to any desired name which will be your datacenter's identifier in our system.
+Email data@cloubrain.com with any questions.
+
+To start the collector, run
+$JAVA_HOME/bin/java -jar stats.jar vCenter.config
+If successful, you will see collected stats on the console.
+
+To create image files of visualization of your data, run
+$JAVA_HOME/bin/java -jar stats.jar visualization

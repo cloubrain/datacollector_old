@@ -1,0 +1,14 @@
+HOW-TO-RUN
+
+1. copy file collect.py in main folder to your local path
+2. obtain API Key and Secret Key from cloudstack, fill out the top of file collect.py
+    a. API: URL to cloudstack
+    b. API Key
+    c. Secrete Key
+    d. path to store data collected from cloudstack
+    e. interval (in seconds) for collecting data
+3. python collect.py --install=
+4. run the service of collecting data: 
+    sudo start collect
+5. stop the serivce of collecting data: 
+    sudo stop collect
